@@ -459,12 +459,21 @@ export default class Transformer {
       if (updateOne) {
         const imports = [
           `import { ${modelName}UpdateInputObjectSchema } from './objects/${modelName}UpdateInput.schema'`,
+          `import { ${modelName}UncheckedUpdateInputObjectSchema } from './objects/${modelName}UncheckedUpdateInput.schema'`,
           `import { ${modelName}WhereUniqueInputObjectSchema } from './objects/${modelName}WhereUniqueInput.schema'`,
         ];
         await writeFileSafely(
           path.join(Transformer.outputPath, `schemas/${updateOne}.schema.ts`),
           `${this.getImportsForSchemas(imports)}${this.addExportSchema(
-            `z.object({ data: ${modelName}UpdateInputObjectSchema, where: ${modelName}WhereUniqueInputObjectSchema  })`,
+            [
+              `z.object({ `,
+              `  data: z.union([`,
+              `    ${modelName}UpdateInputObjectSchema,`,
+              `    ${modelName}UncheckedUpdateInputObjectSchema`,
+              `  ]),`,
+              `  where: ${modelName}WhereUniqueInputObjectSchema`,
+              `})`,
+            ].join('\n'),
             `${modelName}UpdateOne`,
           )}`,
         );
