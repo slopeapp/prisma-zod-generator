@@ -407,11 +407,19 @@ export default class Transformer {
       if (createOne) {
         const imports = [
           `import { ${modelName}CreateInputObjectSchema } from './objects/${modelName}CreateInput.schema'`,
+          `import { ${modelName}UncheckedCreateInputObjectSchema } from './objects/${modelName}UncheckedCreateInput.schema'`,
         ];
         await writeFileSafely(
           path.join(Transformer.outputPath, `schemas/${createOne}.schema.ts`),
           `${this.getImportsForSchemas(imports)}${this.addExportSchema(
-            `z.object({ data: ${modelName}CreateInputObjectSchema  })`,
+            [
+              `z.object({`,
+              `  data: z.union([`,
+              `    ${modelName}CreateInputObjectSchema,`,
+              `    ${modelName}UncheckedCreateInputObjectSchema`,
+              `  ])`,
+              `})`,
+            ].join('\n'),
             `${modelName}CreateOne`,
           )}`,
         );
