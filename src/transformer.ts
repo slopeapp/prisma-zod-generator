@@ -536,12 +536,17 @@ export default class Transformer {
     for (const enumType of this.enumTypes) {
       const { name, values } = enumType;
 
+      const enumContents = `z.enum(${JSON.stringify(values)})`;
+      const schemaContents = name.match(/^Nullable/)
+        ? `z.nullable(${enumContents})`
+        : enumContents;
+      const result = `${this.getImportZod()}\n${this.addExportSchema(
+        schemaContents,
+        `${name}`,
+      )}`;
       await writeFileSafely(
         path.join(Transformer.outputPath, `schemas/enums/${name}.schema.ts`),
-        `${this.getImportZod()}\n${this.addExportSchema(
-          `z.enum(${JSON.stringify(values)})`,
-          `${name}`,
-        )}`,
+        result,
       );
     }
   }
